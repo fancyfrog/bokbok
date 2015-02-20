@@ -1,0 +1,136 @@
+<!--
+ Copyright (C) fancyfrog.org
+ Author : Sagiruddin Mondal
+ This code is available under MIT Licence
+-->
+<!doctype html>
+<html>
+<title>Chat app with node js</title>
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        #chat {
+            height: 500px;
+        }
+
+        #contentWrap{
+            display: none;
+        }
+
+        #users{
+            color: lawngreen;
+        }
+
+        #chatWrap{
+            float: left;
+            border: 1px #ccc solid;
+        }
+        .error{
+            color: #D2413A;
+        }
+        .private{
+            color: #006666;
+        }
+    </style>
+
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+
+</head>
+<body>
+    <div id="nickWrap">
+        <p>Enter a username :</p>
+        <form id="setNick">
+            <input size="35" id="nickName"></input>
+            <input type="submit"></input>
+        </form>
+        <div id="nickError"></div>
+    </div>
+    <div id="contentWrap">
+        <div id="chatWrap">
+            <div id="chat"></div>
+
+            <form id="send-message">
+                <input size="35" id="message"></input>
+                <input type="submit"></input>
+            </form>
+        </div>
+        <div id="users">
+
+        </div>
+    </div>
+
+
+<script>
+
+    $(document).ready(function() {
+        var socket = io.connect();
+        var nickForm = $('#setNick');
+        var nickError = $('#nickError');
+        var nickBox = $('#nickName');
+        var users = $('#users');
+        var messageFrom = $('#send-message');
+        var messageBox = $('#message');
+        var chat = $('#chat');
+
+        nickForm.submit(function(e){
+            e.preventDefault();
+            socket.emit('new user', nickBox.val(), function(data) {
+                if(data){
+                    $('#nickWrap').hide();
+                    $('#contentWrap').show();
+                }else{
+                    nickError.html('That username is already taken. Please choose a new one');
+                }
+            });
+            nickBox.val();
+        });
+
+        socket.on('userNames', function(data) {
+            var html ='';
+            for(i=0; i<data.length; i++){
+                html += data[i] + "</br>";
+            }
+            users.html(html);
+        });
+
+        messageFrom.submit(function(e){
+            e.preventDefault();
+            socket.emit('send message', messageBox.val(), function(data){
+                console.log(data);
+                chat.append(data + "</br>");
+            });
+            messageBox.val('');
+        });
+
+        socket.on('public', function(data) {
+            chat.append(data.nick + ": " + data.msg + "</br>");
+        });
+
+        socket.on('private', function(data) {
+            chat.append(data.nick + ":" + data.msg + "</br>");
+        });
+    });
+
+
+
+
+
+
+/*    var socket = io();
+    $('form').submit(function(){
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+    });
+    socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+    });
+
+    socket.on('subscribe', function(data) {
+        socket.join(data.room); });*/
+
+</script>
+
+</body>
+</html>

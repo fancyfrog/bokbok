@@ -1,0 +1,11 @@
+{
+  "name": "sample-chat-app",
+  "version": "0.0.1",
+  "description": "my first socket.io app",
+  "dependencies": {
+    "socket.io": "latest",
+    "express": "latest",
+    "jade": "latest"
+  },
+  "author": "Sagiruddin Mondal"
+}
